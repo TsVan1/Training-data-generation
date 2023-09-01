@@ -1,5 +1,4 @@
 import random
-import json
 from PIL import Image, ImageDraw
 import os
 
@@ -41,7 +40,8 @@ for i in range(num_images):
     draw = ImageDraw.Draw(background)
 
     selected_candidates = random.sample(candidate_images, 10)
-    image_data = []
+
+    txt_data = []
 
     for candidate in selected_candidates:
         x = random.randint(0, image_width - object_width)
@@ -55,12 +55,11 @@ for i in range(num_images):
         width_normalized = round(object_width / image_width, 5)
         height_normalized = round(object_height / image_height, 5)
 
-        image_data.append({"class": candidate, "x_center": round(x_normalized + width_normalized / 2, 5),
-                           "y_center": round(y_normalized + height_normalized / 2, 5), "width": width_normalized,
-                           "height": height_normalized})
+        class_name = os.path.splitext(candidate)[0]  # 去除扩展名
+        txt_data.append(
+            f"{class_name} {x_normalized:.5f} {y_normalized:.5f} {width_normalized:.5f} {height_normalized:.5f}")
 
-    background.save(os.path.join(output_folder_path, f"image_{i}.jpg"))
+    background.save(os.path.join(output_folder_path, f"image_{i}.png"))
 
-    json_data = {"image": f"image_{i}.jpg", "candidates": image_data}
-    with open(os.path.join(output_folder_path, f"image_{i}.json"), "w") as json_file:
-        json.dump(json_data, json_file, indent=4)
+    with open(os.path.join(output_folder_path, f"image_{i}.txt"), "w") as txt_file:
+        txt_file.write("\n".join(txt_data))
