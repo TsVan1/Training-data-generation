@@ -48,15 +48,21 @@ for i in range(num_images):
     txt_data = []
 
     for candidate in selected_candidates:
-        x = random.randint(0, image_width - object_width)
-        y = random.randint(0, image_height - object_height)
+        # 计算object中心点坐标
+        center_x = random.randint(object_width // 2, image_width - object_width // 2)
+        center_y = random.randint(object_height // 2, image_height - object_height // 2)
+
+        # 计算左上角坐标
+        x = center_x - object_width // 2
+        y = center_y - object_height // 2
+
         candidate_image = Image.open(os.path.join(object_path, candidate_images[candidate])).resize(
             (object_width, object_height))
         background.paste(candidate_image, (x, y))
 
         # 计算归一化坐标并保留小数点后5位
-        x_normalized = round(x / image_width, 5)
-        y_normalized = round(y / image_height, 5)
+        x_normalized = round(center_x / image_width, 5)
+        y_normalized = round(center_y / image_height, 5)
         width_normalized = round(object_width / image_width, 5)
         height_normalized = round(object_height / image_height, 5)
 
@@ -72,4 +78,4 @@ for i in range(num_images):
 # 生成类别名称到数字的映射关系txt文件
 with open(os.path.join(output_folder_path, "class_mapping.txt"), "w") as mapping_file:
     for name, number in file_name_to_number_mapping.items():
-        mapping_file.write(f"{number}:{name}\n")
+        mapping_file.write(f"{number} {name}\n")
